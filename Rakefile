@@ -1,11 +1,24 @@
 require 'colorize'
 task default: "build"
 
+def parse_slim src, dest
+  require 'slim'
+  Slim::Engine.set_default_options :pretty => true
+  
+  slimfile = File.open(src, "r")
+  content = IO.read(src)
+  slimfile.close
+  m = Regexp.new(/^(---.*?---\s*|\s*)(.*)/m).match(content)
+  htmlfile = File.new(dest, "w")
+  htmlfile.write(m[1] + Tilt['slim'].new{m[2]}.render) 
+  htmlfile.close
+end
+
 def build_layout src
   dest = src.sub(/layouts/, ".cache/_layouts").sub(/\.slim$/, ".html")
   if src =~ /\.slim$/
     puts "slim: ".green + src.split("/").last + " -> " + dest.split("/").last
-    system("slimrb #{src} #{dest}")
+    parse_slim src, dest
   else
     puts "cp: ".green + src.split("/").last + " -> " + dest.split("/").last
     system("cp #{src} #{dest}")
@@ -22,7 +35,7 @@ def build_page src
   dest = src.sub(/pages/, ".cache/").sub(/\.slim$/, ".html")
   if src =~ /\.slim$/
     puts "slim: ".green + src.split("/").last + " -> " + dest.split("/").last
-    system("slimrb #{src} #{dest}")
+    parse_slim src, dest
   else
     puts "cp: ".green + src.split("/").last + " -> " + dest.split("/").last
     system("cp #{src} #{dest}")
