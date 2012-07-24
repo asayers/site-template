@@ -1,0 +1,72 @@
+@import "compass";
+@import "_grater";
+@import "_colours";
+@import url(http://fonts.googleapis.com/css?family=Lobster);
+
+// Debug
+* {
+//  border: 1px solid red !important;
+}
+
+.hero {
+  width: 90%;
+  padding: 5%;
+  margin: 1em auto;
+  background-color: lighten($green, 10%);
+  @include border-radius(8px, 8px);
+  text-align: center;
+  h1 {
+    color: $green;
+    text-shadow: 0px 1px 1px lighten($green, 20%);
+    font-family: "Lobster", cursive;
+    font-size: 48px;
+  }
+}
+
+header {
+  margin-top: 1em;
+	margin-bottom: 1em;
+  border-bottom: 1px solid #ddd;
+  h1 {
+    font-family: "Lobster", cursive;
+    font-size: 16px;
+    float:left;
+    a {
+      color: #000;
+      text-decoration: none;
+      &:visited {
+        color: #000;
+      }
+      &:hover {
+        color: #000;
+      }
+
+    }
+  }
+  ul.nav {
+    margin-top: 2px;
+    margin-bottom: 0;
+    float: right;
+    li {
+      display: inline;
+      padding-left: 20px;
+    }
+    a {
+      color: #666;
+      font-size: 12px;
+      text-decoration: none;
+      &:hover {
+        color: #999;
+      }
+    }
+  }
+}
+
+footer {
+  border-top: 1px solid #ddd;
+  margin-top: 1em;
+  margin-bottom: 1em;
+  font-size: 10px;
+  color: #ddd;
+  text-align: center;
+}
