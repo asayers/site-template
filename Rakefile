@@ -62,39 +62,22 @@ task :build do
   # cp/thin: pages -> .cache
   puts "Building pages".blue
   Dir.glob("pages/**/*") { |f| build_page f }
+  # cp: images -> .cache/img
+  puts "Copying images".blue
+  system("mkdir .cache/img; cp -R images/* .cache/img/")
+  # cp: javascripts -> .cache/js
+  puts "Copying javascripts".blue
+  system("mkdir .cache/js; cp -R javascripts/* .cache/js/")
+  # compass: stylesheets -> .cache/css
+  puts "Running Compass".blue
+  system("mkdir .cache/css; compass compile -c compass.rb")
   # jekyll: .cache -> site
   puts "Running Jekyll".blue
   system("jekyll .cache site")
-  # cp: images -> site/img
-  puts "Copying images".blue
-  system("mkdir site/img; cp -R images/* site/img/")
-  # cp: javascripts -> site/js
-  puts "Copying javascripts".blue
-  system("mkdir site/js; cp -R javascripts/* site/js/")
-  # compass: stylesheets -> site/css
-  puts "Running Compass".blue
-  system("mkdir site/css; compass compile -c compass.rb")
 end
 
-task :watch_layouts do
-  require 'listen'
-  # Set-up
-  puts "Preparing".blue
-  system("mkdir -p .cache/_layouts")
-  
-  # We're just gonna handle slim here. For compass and jekyll, use foreman.
-  Listen.to("layouts/") do |m, c, r|
-    m.each { |f| build_layout f }
-    c.each { |f| build_layout f }
-    r.each { |f| remove_layout f }
-  end
-end
-  
 task :watch_pages do
   require 'listen'
-  # Set-up
-  puts "Preparing".blue
-  system("mkdir -p .cache/")
   
   Listen.to("pages/") do |m, c, r|
     m.each { |f| build_page f }
@@ -103,6 +86,27 @@ task :watch_pages do
   end
 end
 
+task :watch_layouts do
+  require 'listen'
+  
+  Listen.to("layouts/") do |m, c, r|
+    m.each { |f| build_layout f }
+    c.each { |f| build_layout f }
+    r.each { |f| remove_layout f }
+  end
+end
+
+task :watch_assets do
+  require 'listen'
+  
+  Listen.to("images", "javascripts") do |m, c, r|
+    m.each { |f| system("cp #{f} " + f.sub(/javascripts/, ".cache/js").sub(/images/, ".cache/img")) }
+    c.each { |f| system("cp #{f} " + f.sub(/javascripts/, ".cache/js").sub(/images/, ".cache/img")) }
+    r.each { |f| system("rm " + f.sub(/javascripts/, ".cache/js").sub(/images/, ".cache/img")) }
+  end
+end
+
 task :watch do
+  Rake::Task["build"].invoke
   system("foreman start")
 end
